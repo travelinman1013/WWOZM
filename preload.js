@@ -16,6 +16,8 @@ contextBridge.exposeInMainWorld('electron', {
     // Send an IPC message to the main process
     send: (channel, ...args) => ipcRenderer.send(channel, ...args),
     // Listen for IPC messages from the main process
-    on: (channel, listener) => ipcRenderer.on(channel, listener)
+    on: (channel, listener) => ipcRenderer.on(channel, listener),
+    // Invoke an IPC handler and return a promise (for fetch-archive-list, fetch-archive-audio-url)
+    invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args)
   }
 }); 

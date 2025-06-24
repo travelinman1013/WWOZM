@@ -12,7 +12,7 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=400, initial-scale=1.0">
+  <meta name="viewport" content="width=500, initial-scale=1.0">
   <title>WWOZ New Orleans Live Stream</title>
   <style>
     /*
@@ -24,16 +24,47 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       height: 100vh;
       margin: 0;
+    }
+    .tab-nav {
+      display: flex;
+      margin-top: 2em;
+      margin-bottom: 2em;
+      gap: 1em;
+    }
+    .tab-btn {
+      padding: 0.5em 1.5em;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px 5px 0 0;
+      background: #e0e0e0;
+      color: #333;
+      cursor: pointer;
+      outline: none;
+      transition: background 0.2s;
+    }
+    .tab-btn.active {
+      background: #00704a;
+      color: #fff;
+    }
+    .tab-section {
+      display: none;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .tab-section.active {
+      display: block;
     }
     h1 {
       margin-bottom: 1.5rem;
       font-size: 1.7rem;
       letter-spacing: 1px;
+      text-align: center;
     }
-    #playPauseButton {
+    #playPauseButton, #archivePlayPauseButton {
       padding: 0.7em 2em;
       font-size: 1.1rem;
       border: none;
@@ -44,36 +75,85 @@
       margin-bottom: 1.2em;
       transition: background 0.2s;
     }
-    #playPauseButton:hover {
+    #playPauseButton:hover, #archivePlayPauseButton:hover {
       background: #005c3b;
     }
-    #volumeSlider {
+    #volumeSlider, #archiveVolumeSlider {
       width: 200px;
       margin-bottom: 1.2em;
     }
-    #streamStatus {
+    #streamStatus, #archiveStreamStatus {
       margin-top: 0.5em;
       color: #444;
       font-size: 1em;
       min-height: 1.2em;
     }
+    #archiveList {
+      margin-top: 1em;
+      padding: 0;
+      list-style: none;
+      width: 100%;
+    }
+    .archive-entry {
+      display: flex;
+      flex-direction: column;
+      background: #f5f5f5;
+      border-radius: 5px;
+      margin-bottom: 1em;
+      padding: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .archive-entry:hover {
+      background: #e0f7ea;
+    }
+    .archive-entry-title {
+      font-weight: bold;
+      margin-bottom: 0.3em;
+    }
+    .archive-entry-date {
+      color: #666;
+      font-size: 0.95em;
+    }
+    #archiveLoading {
+      margin-top: 2em;
+      color: #888;
+      text-align: center;
+    }
+    #archiveError {
+      margin-top: 2em;
+      color: #c00;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <!-- Main heading for the stream player -->
-  <h1>WWOZ New Orleans Live</h1>
+  <h1>WWOZ New Orleans Stream Mirror</h1>
+  <!-- Tab navigation for Live/Archive -->
+  <div class="tab-nav">
+    <button class="tab-btn active" id="liveTabBtn">Live Stream</button>
+    <button class="tab-btn" id="archiveTabBtn">Archive</button>
+  </div>
 
-  <!-- Play/Pause button for controlling audio playback -->
-  <button id="playPauseButton">Play</button>
+  <!-- Live Stream Section -->
+  <div class="tab-section active" id="liveSection">
+    <!-- Play/Pause button for controlling audio playback -->
+    <button id="playPauseButton">Play</button>
+    <!-- Volume slider for adjusting stream volume -->
+    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+    <!-- Hidden audio element for streaming WWOZ audio -->
+    <audio id="wwozAudio" src="https://wwoz-sc.streamguys1.com/wwoz-hi.mp3" preload="auto" style="display:none;"></audio>
+    <!-- Display area for current stream status (Playing, Paused, etc.) -->
+    <div id="streamStatus">Paused</div>
+  </div>
 
-  <!-- Volume slider for adjusting stream volume -->
-  <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
-
-  <!-- Hidden audio element for streaming WWOZ audio -->
-  <audio id="wwozAudio" src="https://wwoz-sc.streamguys1.com/wwoz-hi.mp3" preload="auto" style="display:none;"></audio>
-
-  <!-- Display area for current stream status (Playing, Paused, etc.) -->
-  <div id="streamStatus">Paused</div>
+  <!-- Archive Section -->
+  <div class="tab-section" id="archiveSection">
+    <!-- Archive list will be dynamically loaded here -->
+    <div id="archiveLoading">Loading archive list...</div>
+    <div id="archiveError" style="display:none;"></div>
+    <ul id="archiveList"></ul>
+  </div>
 
   <!-- Link to renderer.js for UI and audio logic -->
   <script src="renderer.js"></script>
