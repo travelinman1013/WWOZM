@@ -1,3 +1,12 @@
+<!--
+  index.html - Electron Renderer UI
+  --------------------------------
+  This is the main HTML file loaded by the Electron app. It provides:
+    - The user interface for the WWOZ New Orleans Live Stream player
+    - A play/pause button, volume slider, stream status display, and a hidden audio element
+    - Minimalist, clean styling for a focused listening experience
+    - Links to renderer.js for UI logic
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +15,9 @@
   <meta name="viewport" content="width=400, initial-scale=1.0">
   <title>WWOZ New Orleans Live Stream</title>
   <style>
+    /*
+      Basic styling for a clean, centered, readable UI
+    */
     body {
       font-family: sans-serif;
       background: #fafbfc;
@@ -48,11 +60,22 @@
   </style>
 </head>
 <body>
+  <!-- Main heading for the stream player -->
   <h1>WWOZ New Orleans Live</h1>
+
+  <!-- Play/Pause button for controlling audio playback -->
   <button id="playPauseButton">Play</button>
+
+  <!-- Volume slider for adjusting stream volume -->
   <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+
+  <!-- Hidden audio element for streaming WWOZ audio -->
   <audio id="wwozAudio" src="https://wwoz-sc.streamguys1.com/wwoz-hi.mp3" preload="auto" style="display:none;"></audio>
+
+  <!-- Display area for current stream status (Playing, Paused, etc.) -->
   <div id="streamStatus">Paused</div>
+
+  <!-- Link to renderer.js for UI and audio logic -->
   <script src="renderer.js"></script>
 </body>
 </html> 
