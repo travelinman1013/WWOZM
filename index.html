@@ -2,8 +2,9 @@
   index.html - Electron Renderer UI
   --------------------------------
   This is the main HTML file loaded by the Electron app. It provides:
-    - The user interface for the WWOZ New Orleans Live Stream player
-    - A play/pause button, volume slider, stream status display, and a hidden audio element
+    - The user interface for the WWOZ New Orleans Live Stream player and 2-week archive
+    - Navigation between Live and Archive views
+    - A play/pause button, volume slider, stream status display, and a shared audio element
     - Minimalist, clean styling for a focused listening experience
     - Links to renderer.js for UI logic
 -->
@@ -12,12 +13,9 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=500, initial-scale=1.0">
-  <title>WWOZ New Orleans Live Stream</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WWOZ New Orleans Stream & Archive</title>
   <style>
-    /*
-      Basic styling for a clean, centered, readable UI
-    */
     body {
       font-family: sans-serif;
       background: #fafbfc;
@@ -25,44 +23,51 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
-    }
-    .tab-nav {
-      display: flex;
-      margin-top: 2em;
-      margin-bottom: 2em;
-      gap: 1em;
-    }
-    .tab-btn {
-      padding: 0.5em 1.5em;
-      font-size: 1rem;
-      border: none;
-      border-radius: 5px 5px 0 0;
-      background: #e0e0e0;
-      color: #333;
-      cursor: pointer;
-      outline: none;
-      transition: background 0.2s;
-    }
-    .tab-btn.active {
-      background: #00704a;
-      color: #fff;
-    }
-    .tab-section {
-      display: none;
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-    .tab-section.active {
-      display: block;
+      padding: 0;
     }
     h1 {
-      margin-bottom: 1.5rem;
+      margin: 1.2rem 0 0.5rem 0;
       font-size: 1.7rem;
       letter-spacing: 1px;
       text-align: center;
+    }
+    .nav {
+      display: flex;
+      justify-content: center;
+      margin: 1.2em 0 1.5em 0;
+      gap: 1em;
+    }
+    .nav-btn {
+      padding: 0.5em 1.5em;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background: #e0e0e0;
+      color: #222;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .nav-btn.active {
+      background: #00704a;
+      color: #fff;
+    }
+    .view {
+      display: none;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .view.active {
+      display: block;
+    }
+    #liveView .controls, #archivePlayerView .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1em;
+      margin-bottom: 1em;
     }
     #playPauseButton, #archivePlayPauseButton {
       padding: 0.7em 2em;
@@ -72,7 +77,7 @@
       background: #00704a;
       color: #fff;
       cursor: pointer;
-      margin-bottom: 1.2em;
+      margin-bottom: 0.5em;
       transition: background 0.2s;
     }
     #playPauseButton:hover, #archivePlayPauseButton:hover {
@@ -80,82 +85,104 @@
     }
     #volumeSlider, #archiveVolumeSlider {
       width: 200px;
-      margin-bottom: 1.2em;
     }
     #streamStatus, #archiveStreamStatus {
       margin-top: 0.5em;
       color: #444;
       font-size: 1em;
       min-height: 1.2em;
+      text-align: center;
     }
-    #archiveList {
-      margin-top: 1em;
-      padding: 0;
+    #archiveListView {
+      min-height: 200px;
+      margin-bottom: 1em;
+    }
+    .archive-list-loading {
+      text-align: center;
+      color: #888;
+      margin: 2em 0;
+    }
+    .archive-list {
       list-style: none;
-      width: 100%;
+      padding: 0;
+      margin: 0;
     }
-    .archive-entry {
+    .archive-list-item {
+      padding: 1em;
+      border-bottom: 1px solid #e0e0e0;
+      cursor: pointer;
+      transition: background 0.15s;
       display: flex;
       flex-direction: column;
-      background: #f5f5f5;
-      border-radius: 5px;
-      margin-bottom: 1em;
-      padding: 1em;
-      cursor: pointer;
-      transition: background 0.2s;
+      gap: 0.2em;
     }
-    .archive-entry:hover {
-      background: #e0f7ea;
+    .archive-list-item:hover {
+      background: #f0f7f4;
     }
-    .archive-entry-title {
+    .archive-show-title {
       font-weight: bold;
-      margin-bottom: 0.3em;
+      color: #222;
     }
-    .archive-entry-date {
+    .archive-show-date {
       color: #666;
       font-size: 0.95em;
     }
-    #archiveLoading {
-      margin-top: 2em;
-      color: #888;
-      text-align: center;
+    #backToArchiveListBtn {
+      margin-top: 1em;
+      padding: 0.5em 1.5em;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background: #e0e0e0;
+      color: #222;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    #archiveError {
-      margin-top: 2em;
-      color: #c00;
-      text-align: center;
+    #backToArchiveListBtn:hover {
+      background: #d0d0d0;
+    }
+    @media (max-width: 500px) {
+      .view { max-width: 98vw; }
+      #volumeSlider, #archiveVolumeSlider { width: 90vw; max-width: 300px; }
     }
   </style>
 </head>
 <body>
-  <h1>WWOZ New Orleans Stream Mirror</h1>
-  <!-- Tab navigation for Live/Archive -->
-  <div class="tab-nav">
-    <button class="tab-btn active" id="liveTabBtn">Live Stream</button>
-    <button class="tab-btn" id="archiveTabBtn">Archive</button>
+  <h1>WWOZ New Orleans</h1>
+  <div class="nav">
+    <button id="navLive" class="nav-btn active">Live Stream</button>
+    <button id="navArchive" class="nav-btn">2-Week Archive</button>
   </div>
 
-  <!-- Live Stream Section -->
-  <div class="tab-section active" id="liveSection">
-    <!-- Play/Pause button for controlling audio playback -->
-    <button id="playPauseButton">Play</button>
-    <!-- Volume slider for adjusting stream volume -->
-    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
-    <!-- Hidden audio element for streaming WWOZ audio -->
-    <audio id="wwozAudio" src="https://wwoz-sc.streamguys1.com/wwoz-hi.mp3" preload="auto" style="display:none;"></audio>
-    <!-- Display area for current stream status (Playing, Paused, etc.) -->
+  <!-- Live Stream View -->
+  <div id="liveView" class="view active">
+    <div class="controls">
+      <button id="playPauseButton">Play</button>
+      <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+    </div>
     <div id="streamStatus">Paused</div>
   </div>
 
-  <!-- Archive Section -->
-  <div class="tab-section" id="archiveSection">
-    <!-- Archive list will be dynamically loaded here -->
-    <div id="archiveLoading">Loading archive list...</div>
-    <div id="archiveError" style="display:none;"></div>
-    <ul id="archiveList"></ul>
+  <!-- Archive List View -->
+  <div id="archiveListView" class="view">
+    <div id="archiveListLoading" class="archive-list-loading" style="display:none;">Loading archive...</div>
+    <ul id="archiveList" class="archive-list"></ul>
   </div>
 
-  <!-- Link to renderer.js for UI and audio logic -->
+  <!-- Archive Player View -->
+  <div id="archivePlayerView" class="view">
+    <div class="controls">
+      <div id="archiveShowTitle" class="archive-show-title"></div>
+      <button id="archivePlayPauseButton">Play</button>
+      <input type="range" id="archiveVolumeSlider" min="0" max="1" step="0.01" value="1">
+    </div>
+    <div id="archiveStreamStatus">Paused</div>
+    <button id="backToArchiveListBtn">Back to Archive List</button>
+  </div>
+
+  <!-- Shared audio element for both live and archive playback -->
+  <audio id="wwozAudio" src="https://wwoz-sc.streamguys1.com/wwoz-hi.mp3" preload="auto" style="display:none;"></audio>
+
   <script src="renderer.js"></script>
 </body>
 </html> 
