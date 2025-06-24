@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=400, initial-scale=1.0">
+  <title>WWOZ New Orleans Live Stream</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #fafbfc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+      font-size: 1.7rem;
+      letter-spacing: 1px;
+    }
+    #playPauseButton {
+      padding: 0.7em 2em;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 5px;
+      background: #00704a;
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 1.2em;
+      transition: background 0.2s;
+    }
+    #playPauseButton:hover {
+      background: #005c3b;
+    }
+    #volumeSlider {
+      width: 200px;
+      margin-bottom: 1.2em;
+    }
+    #streamStatus {
+      margin-top: 0.5em;
+      color: #444;
+      font-size: 1em;
+      min-height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>WWOZ New Orleans Live</h1>
+  <button id="playPauseButton">Play</button>
+  <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+  <audio id="wwozAudio" src="https://wwoz-sc.streamguys1.com/wwoz-hi.mp3" preload="auto" style="display:none;"></audio>
+  <div id="streamStatus">Paused</div>
+  <script src="renderer.js"></script>
+</body>
+</html> 
